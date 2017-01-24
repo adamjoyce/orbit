@@ -13,9 +13,6 @@ APlanet::APlanet()
 	// Setup the planet collision sphere.
 	PlanetSphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("PlanetCollisionSphere"));
 	RootComponent = PlanetSphereComponent;
-	RadiusInMeters = 1.0f;
-	RadiusInUnits = RadiusInMeters * 100.0f;
-	PlanetSphereComponent->InitSphereRadius(RadiusInUnits);
 
 	// Setup the planet mesh.
 	PlanetMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlanetMesh"));
@@ -26,6 +23,12 @@ APlanet::APlanet()
 		PlanetMeshComponent->SetStaticMesh(PlanetVisualAsset.Object);
 		PlanetMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
 	}
+
+	// Scale the planet.
+	RadiusInMeters = 1.0f;
+	RadiusInUnits = RadiusInMeters * 100.0f;
+	float PlanetScale = RadiusInUnits / PlanetMeshComponent->Bounds.BoxExtent.X;
+	PlanetSphereComponent->SetWorldScale3D(FVector(PlanetScale));
 }
 
 // Called when the game starts or when spawned
