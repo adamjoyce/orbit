@@ -4,6 +4,8 @@
 #include "OrbitPawn.h"
 #include "OrbitProjectile.h"
 #include "TimerManager.h"
+#include <EngineGlobals.h>
+#include <Runtime/Engine/Classes/Engine/Engine.h>
 
 const FName AOrbitPawn::MoveForwardBinding("MoveForward");
 const FName AOrbitPawn::MoveRightBinding("MoveRight");
@@ -12,10 +14,14 @@ const FName AOrbitPawn::FireRightBinding("FireRight");
 
 AOrbitPawn::AOrbitPawn()
 {	
+	// Setup the ship's root component.
+	ShipRoot = CreateDefaultSubobject<USceneComponent>(TEXT("ShipRoot"));
+	RootComponent = ShipRoot;
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ShipMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
 	// Create the mesh component
 	ShipMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShipMesh"));
-	RootComponent = ShipMeshComponent;
+	ShipMeshComponent->SetupAttachment(RootComponent);
 	ShipMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	ShipMeshComponent->SetStaticMesh(ShipMesh.Object);
 	
@@ -63,12 +69,19 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 
 	// Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
 	const FVector MoveDirection = FVector(ForwardValue, RightValue, 0.f).GetClampedToMaxSize(1.0f);
+	ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("FowardValue: %f"), RightValue));
 
 	// Calculate  movement
-	const FVector Movement = MoveDirection * MoveSpeed * DeltaSeconds;
+	const FVector Movement = ShipMeshComponent->GetForwardVector() * MoveSpeed * DeltaSeconds;
+
+	if (ForwardValue != 0.0f || RightValue != 0.0f)
+	{
+		AddActorLocalOffset(Movement, false);
+	}
 
 	// If non-zero size, move this actor
-	if (Movement.SizeSquared() > 0.0f)
+	/*if (Movement.SizeSquared() > 0.0f)
 	{
 		const FRotator NewRotation = Movement.Rotation();
 		FHitResult Hit(1.f);
@@ -80,7 +93,7 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 			const FVector Deflection = FVector::VectorPlaneProject(Movement, Normal2D) * (1.f - Hit.Time);
 			RootComponent->MoveComponent(Deflection, NewRotation, true);
 		}
-	}
+	}*/
 	
 	// Create fire direction vector
 	const float FireForwardValue = GetInputAxisValue(FireForwardBinding);

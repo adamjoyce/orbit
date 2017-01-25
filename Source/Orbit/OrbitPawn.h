@@ -9,6 +9,10 @@ class AOrbitPawn : public APawn
 {
 	GENERATED_BODY()
 
+	/* The root component to help rotation */
+	UPROPERTY()
+	class USceneComponent* ShipRoot;
+
 	/* The mesh component */
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* ShipMeshComponent;
