@@ -12,7 +12,7 @@ class ORBIT_API APlanet : public AActor
 
 	// The planet mesh component.
 	UPROPERTY()
-	class USphereComponent* PlanetSphereComponent;
+	class UBillboardComponent* CoreComponent;
 
 	// The planet mesh component.
 	UPROPERTY()
