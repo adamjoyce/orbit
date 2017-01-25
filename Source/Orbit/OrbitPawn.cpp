@@ -6,6 +6,7 @@
 #include "TimerManager.h"
 #include <EngineGlobals.h>
 #include <Runtime/Engine/Classes/Engine/Engine.h>
+#include <Planet.h>
 
 const FName AOrbitPawn::MoveForwardBinding("MoveForward");
 const FName AOrbitPawn::MoveRightBinding("MoveRight");
@@ -59,6 +60,11 @@ void AOrbitPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent
 	InputComponent->BindAxis(MoveRightBinding);
 	InputComponent->BindAxis(FireForwardBinding);
 	InputComponent->BindAxis(FireRightBinding);
+}
+
+void AOrbitPawn::BeginPlay()
+{
+	//APlanet planet = GetAll
 }
 
 void AOrbitPawn::Tick(float DeltaSeconds)

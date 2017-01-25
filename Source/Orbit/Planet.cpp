@@ -39,6 +39,17 @@ void APlanet::BeginPlay()
 	PlanetMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -RadiusInUnits));	
 }
 
+//
+void APlanet::CalculateShipNormalAndSurfaceDistance(const FVector ShipLocation)
+{
+	// The normal at the planet location below the ship.
+	FVector ShipSurfaceNormal = ShipLocation - GetActorLocation();
+	ShipSurfaceNormal.Normalize();
+
+	// The distance from the planet centre to the ship.
+	ShipPlanetDistance = (ShipSurfaceNormal * RadiusInUnits) + GetActorLocation();
+}
+
 //// Called every frame
 //void APlanet::Tick( float DeltaTime )
 //{

@@ -34,8 +34,15 @@ public:
 	UPROPERTY(Category = PlanetVariables, EditAnywhere, BlueprintReadWrite)
 	float RadiusInMeters;
 
-	//Called when the game starts or when spawned
+	//
+	FVector ShipSurfaceDistance;
+	FVector ShipSurfaceNormal;
+
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	//
+	void CalculateShipNormalAndSurfaceDistance(FVector ShipLocation);
 	
 	// Called every frame
 	//virtual void Tick( float DeltaSeconds ) override;
