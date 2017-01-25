@@ -12,7 +12,7 @@ class ORBIT_API APlanet : public AActor
 
 	// The planet mesh component.
 	UPROPERTY()
-	class UBillboardComponent* CoreComponent;
+	class USceneComponent* CoreComponent;
 
 	// The planet mesh component.
 	UPROPERTY()
@@ -21,6 +21,10 @@ class ORBIT_API APlanet : public AActor
 	// Planet radius in UE4 units (cm).
 	UPROPERTY()
 	float RadiusInUnits;
+
+	// The planet's 3d world scale.
+	UPROPERTY()
+		float PlanetScale;
 	
 public:	
 	// Sets default values for this actor's properties
