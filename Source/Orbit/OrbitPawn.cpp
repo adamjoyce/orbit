@@ -3,10 +3,12 @@
 #include "Orbit.h"
 #include "OrbitPawn.h"
 #include "OrbitProjectile.h"
+#include "Planet.h"
 #include "TimerManager.h"
 #include <EngineGlobals.h>
 #include <Runtime/Engine/Classes/Engine/Engine.h>
-#include <Planet.h>
+#include "EngineUtils.h"
+#include "Kismet/KismetMathLibrary.h"
 
 const FName AOrbitPawn::MoveForwardBinding("MoveForward");
 const FName AOrbitPawn::MoveRightBinding("MoveRight");
@@ -64,7 +66,18 @@ void AOrbitPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent
 
 void AOrbitPawn::BeginPlay()
 {
-	//APlanet planet = GetAll
+	Super::BeginPlay();
+	// Find all planet's in the scene.
+	TArray<APlanet*> Planets;
+	for (TActorIterator<APlanet> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Will most likely need re-working when more planets are added...
+		Planets.Add(*ActorItr);
+	}
+
+	if (Planets.Num() > 0)
+		CurrentPlanet = Planets[0];
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("" + CurrentPlanet->GetName()));
 }
 
 void AOrbitPawn::Tick(float DeltaSeconds)
@@ -72,18 +85,31 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 	// Find movement direction
 	const float ForwardValue = GetInputAxisValue(MoveForwardBinding);
 	const float RightValue = GetInputAxisValue(MoveRightBinding);
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Normal: %f"), ForwardValue));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Normal: %f"), RightValue));
 
 	// Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
 	const FVector MoveDirection = FVector(ForwardValue, RightValue, 0.f).GetClampedToMaxSize(1.0f);
-	ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
+	//ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("FowardValue: %f"), RightValue));
 
 	// Calculate  movement
-	const FVector Movement = ShipMeshComponent->GetForwardVector() * MoveSpeed * DeltaSeconds;
+	const FVector Movement = MoveDirection * MoveSpeed * DeltaSeconds;
 
 	if (ForwardValue != 0.0f || RightValue != 0.0f)
 	{
 		AddActorLocalOffset(Movement, false);
+
+		// Update planet variables.
+		TArray<FVector> PlanetNormalAndShipDistance;
+		PlanetNormalAndShipDistance = CurrentPlanet->GetSurfaceNormalAndObjectDistance(GetActorLocation());
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Normal: %f, %f, %f"), PlanetNormalAndShipDistance[0].X, PlanetNormalAndShipDistance[0].Y, PlanetNormalAndShipDistance[0].Z));
+
+		// Glue ship to the planet with the correct rotation.
+		SetActorLocation(PlanetNormalAndShipDistance[1]);
+		SetActorRotation(UKismetMathLibrary::MakeRotFromZX(PlanetNormalAndShipDistance[0], GetActorForwardVector()));
+		ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
+		//FRotator(ShipMeshComponent->GetComponentRotation().Roll, ShipMeshComponent->GetComponentRotation().Pitch, PlanetNormalAndShipDistance[0].Z)
 	}
 
 	// If non-zero size, move this actor

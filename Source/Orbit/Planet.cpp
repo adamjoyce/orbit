@@ -35,19 +35,28 @@ APlanet::APlanet()
 void APlanet::BeginPlay()
 {
 	Super::BeginPlay();
-	PlanetMeshComponent->SetWorldScale3D(FVector(PlanetScale));
-	PlanetMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -RadiusInUnits));	
+	if (PlanetMeshComponent != NULL)
+	{
+		PlanetMeshComponent->SetWorldScale3D(FVector(PlanetScale));
+		PlanetMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -RadiusInUnits));
+	}
 }
 
 //
-void APlanet::CalculateShipNormalAndSurfaceDistance(const FVector ShipLocation)
+TArray<FVector> APlanet::GetSurfaceNormalAndObjectDistance(const FVector ShipLocation)
 {
+	TArray<FVector> results;
+
 	// The normal at the planet location below the ship.
 	FVector ShipSurfaceNormal = ShipLocation - GetActorLocation();
 	ShipSurfaceNormal.Normalize();
+	results.Add(ShipSurfaceNormal);
 
 	// The distance from the planet centre to the ship.
-	ShipPlanetDistance = (ShipSurfaceNormal * RadiusInUnits) + GetActorLocation();
+	FVector ShipPlanetDistance = (ShipSurfaceNormal * (RadiusInUnits + 50)) + GetActorLocation();
+	results.Add(ShipPlanetDistance);
+
+	return results;
 }
 
 //// Called every frame

@@ -44,6 +44,9 @@ public:
 	UPROPERTY(Category = Audio, EditAnywhere, BlueprintReadWrite)
 	class USoundBase* FireSound;
 
+	// Current planet the ship is on.
+	class APlanet* CurrentPlanet;
+
 	// Called when the game starts or when spawned.
 	virtual void BeginPlay() override;
 
