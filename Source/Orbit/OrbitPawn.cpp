@@ -89,15 +89,34 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 
 	// Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
 	const FVector MoveDirection = FVector(ForwardValue, RightValue, 0.f).GetClampedToMaxSize(1.0f);
-	//ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("FowardValue: %f"), RightValue));
 
 	// Calculate  movement
 	const FVector Movement = MoveDirection * MoveSpeed * DeltaSeconds;
 
-	if (ForwardValue != 0.0f || RightValue != 0.0f)
+	//if (ForwardValue != 0.0f || RightValue != 0.0f)
+	//{
+	//	//AddActorLocalOffset(Movement, false);
+
+	//	// Update planet variables.
+	//	TArray<FVector> PlanetNormalAndShipDistance;
+	//	PlanetNormalAndShipDistance = CurrentPlanet->GetSurfaceNormalAndObjectDistance(GetActorLocation());
+	//	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Normal: %f, %f, %f"), PlanetNormalAndShipDistance[0].X, PlanetNormalAndShipDistance[0].Y, PlanetNormalAndShipDistance[0].Z));
+
+	//	// Glue ship to the planet with the correct rotation.
+	//	SetActorLocation(PlanetNormalAndShipDistance[1]);
+	//	SetActorRotation(UKismetMathLibrary::MakeRotFromZX(PlanetNormalAndShipDistance[0], GetActorForwardVector()));
+	//	ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
+	//	//FRotator(ShipMeshComponent->GetComponentRotation().Roll, ShipMeshComponent->GetComponentRotation().Pitch, PlanetNormalAndShipDistance[0].Z)
+	//}
+
+	// If non-zero size, move this actor
+	if (Movement.SizeSquared() > 0.0f)
 	{
-		AddActorLocalOffset(Movement, false);
+		const FRotator NewRotation = Movement.Rotation();
+		FHitResult Hit(1.f);
+		//RootComponent->MoveComponent(Movement, NewRotation, true, &Hit);
+		AddActorLocalOffset(Movement, true, &Hit);
 
 		// Update planet variables.
 		TArray<FVector> PlanetNormalAndShipDistance;
@@ -109,27 +128,22 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 		SetActorRotation(UKismetMathLibrary::MakeRotFromZX(PlanetNormalAndShipDistance[0], GetActorForwardVector()));
 		ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
 		//FRotator(ShipMeshComponent->GetComponentRotation().Roll, ShipMeshComponent->GetComponentRotation().Pitch, PlanetNormalAndShipDistance[0].Z)
-	}
-
-	// If non-zero size, move this actor
-	/*if (Movement.SizeSquared() > 0.0f)
-	{
-		const FRotator NewRotation = Movement.Rotation();
-		FHitResult Hit(1.f);
-		RootComponent->MoveComponent(Movement, NewRotation, true, &Hit);
 		
 		if (Hit.IsValidBlockingHit())
 		{
 			const FVector Normal2D = Hit.Normal.GetSafeNormal2D();
 			const FVector Deflection = FVector::VectorPlaneProject(Movement, Normal2D) * (1.f - Hit.Time);
-			RootComponent->MoveComponent(Deflection, NewRotation, true);
+			//RootComponent->MoveComponent(Deflection, NewRotation, true);
+			AddActorLocalOffset(Movement, true, &Hit);
 		}
-	}*/
+	}
 	
 	// Create fire direction vector
 	const float FireForwardValue = GetInputAxisValue(FireForwardBinding);
 	const float FireRightValue = GetInputAxisValue(FireRightBinding);
-	const FVector FireDirection = FVector(FireForwardValue, FireRightValue, 0.f);
+	FVector FireDirection = FVector(FireForwardValue, FireRightValue, 0.f);
+	FRotator Rot = GetActorRotation();
+	FireDirection = Rot.RotateVector(FireDirection);
 
 	// Try and fire a shot
 	FireShot(FireDirection);
