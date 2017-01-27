@@ -4,6 +4,9 @@
 #include "OrbitProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
+#include <EngineGlobals.h>
+#include <Runtime/Engine/Classes/Engine/Engine.h>
+
 AOrbitProjectile::AOrbitProjectile() 
 {
 	// Static reference to the mesh to use for the projectile
@@ -22,7 +25,7 @@ AOrbitProjectile::AOrbitProjectile()
 	ProjectileMovement->UpdatedComponent = ProjectileMesh;
 	ProjectileMovement->InitialSpeed = 3000.f;
 	ProjectileMovement->MaxSpeed = 3000.f;
-	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.f; // No gravity
 
@@ -39,4 +42,5 @@ void AOrbitProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, U
 	}
 
 	Destroy();
+	//GEngine->AddOnScreenDebugMessage(1, 15.0f, FColor::Blue, TEXT("Destroyed"));
 }

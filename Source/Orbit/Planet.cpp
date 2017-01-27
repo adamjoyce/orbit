@@ -24,6 +24,7 @@ APlanet::APlanet()
 	if (PlanetVisualAsset.Succeeded())
 	{
 		PlanetMeshComponent->SetStaticMesh(PlanetVisualAsset.Object);
+		PlanetMeshComponent->SetCollisionProfileName(TEXT("OverlapAll"));
 		PlanetScale = RadiusInUnits / PlanetMeshComponent->Bounds.BoxExtent.X;
 		PlanetMeshComponent->SetWorldScale3D(FVector(PlanetScale));
 		PlanetMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -RadiusInUnits));
@@ -53,7 +54,7 @@ TArray<FVector> APlanet::GetSurfaceNormalAndObjectDistance(const FVector ShipLoc
 	results.Add(ShipSurfaceNormal);
 
 	// The distance from the planet centre to the ship.
-	FVector ShipPlanetDistance = (ShipSurfaceNormal * (RadiusInUnits + 50)) + GetActorLocation();
+	FVector ShipPlanetDistance = (ShipSurfaceNormal * (RadiusInUnits + 300)) + GetActorLocation();
 	results.Add(ShipPlanetDistance);
 
 	return results;

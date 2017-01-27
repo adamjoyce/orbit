@@ -131,6 +131,7 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 		
 		if (Hit.IsValidBlockingHit())
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("HIT"));
 			const FVector Normal2D = Hit.Normal.GetSafeNormal2D();
 			const FVector Deflection = FVector::VectorPlaneProject(Movement, Normal2D) * (1.f - Hit.Time);
 			//RootComponent->MoveComponent(Deflection, NewRotation, true);
@@ -166,6 +167,8 @@ void AOrbitPawn::FireShot(FVector FireDirection)
 			{
 				// spawn the projectile
 				World->SpawnActor<AOrbitProjectile>(SpawnLocation, FireRotation);
+				//GEngine->AddOnScreenDebugMessage(1, 15.0f, FColor::Blue, FString::Printf(TEXT("SpawnLocation: %f %f %f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z));
+				//GEngine->AddOnScreenDebugMessage(1, 15.0f, FColor::Blue, FString::Printf(TEXT("FireRotation: %f %f %f"), FireDirection.Rotation().Roll, FireDirection.Rotation().Pitch, FireDirection.Rotation().Yaw));
 			}
 
 			bCanFire = false;
