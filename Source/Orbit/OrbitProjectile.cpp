@@ -25,9 +25,10 @@ AOrbitProjectile::AOrbitProjectile()
 	ProjectileMovement->UpdatedComponent = ProjectileMesh;
 	ProjectileMovement->InitialSpeed = 3000.f;
 	ProjectileMovement->MaxSpeed = 3000.f;
-	ProjectileMovement->bRotationFollowsVelocity = false;
+	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.f; // No gravity
+	ProjectileMovement->bConstrainToPlane = false;
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
