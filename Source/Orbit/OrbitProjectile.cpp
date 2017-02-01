@@ -31,13 +31,13 @@ AOrbitProjectile::AOrbitProjectile()
 	ProjectileMovement->UpdatedComponent = ProjectileMesh;
 	ProjectileMovement->InitialSpeed = 3000.f;
 	ProjectileMovement->MaxSpeed = 3000.f;
-	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.f; // No gravity
 	ProjectileMovement->bConstrainToPlane = false;
 
 	// Die after 3 seconds by default
-	InitialLifeSpan = 3.0f;
+	InitialLifeSpan = 2.0f;
 }
 
 void AOrbitProjectile::BeginPlay()
@@ -65,6 +65,8 @@ void AOrbitProjectile::Tick(float DeltaSeconds)
 
 	// Glue projectile to planet.
 	SetActorLocation(PlanetNormalAndShipDistance[1]);
+	SetActorRotation(UKismetMathLibrary::MakeRotFromZX(PlanetNormalAndShipDistance[0], GetActorForwardVector()));
+	ProjectileMovement->Velocity = GetActorForwardVector() * ProjectileMovement->MaxSpeed;
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Velocity: %f, %f, %f"), ProjectileMovement->Velocity.X, ProjectileMovement->Velocity.Y, ProjectileMovement->Velocity.Z));
 }
 

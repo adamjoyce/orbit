@@ -100,6 +100,7 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 	// If non-zero size, move this actor
 	if (Movement.SizeSquared() > 0.0f)
 	{
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 		const FRotator NewRotation = Movement.Rotation();
 		FHitResult Hit(1.f);
 		//RootComponent->MoveComponent(Movement, NewRotation, true, &Hit);
@@ -124,6 +125,10 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 			//RootComponent->MoveComponent(Deflection, NewRotation, true);
 			AddActorLocalOffset(Deflection, true, &Hit);
 		}
+	}
+	else
+	{
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.05f);
 	}
 	
 	// Create fire direction vector.
