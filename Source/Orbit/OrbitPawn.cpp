@@ -18,7 +18,8 @@ const FName AOrbitPawn::FireRightBinding("FireRight");
 AOrbitPawn::AOrbitPawn()
 {	
 	// Setup the ship's root component.
-	ShipRoot = CreateDefaultSubobject<USceneComponent>(TEXT("ShipRoot"));
+	ShipRoot = CreateDefaultSubobject<UBoxComponent>(TEXT("ShipRoot"));
+	ShipRoot->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	RootComponent = ShipRoot;
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ShipMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
@@ -76,7 +77,7 @@ void AOrbitPawn::BeginPlay()
 
 	if (Planets.Num() > 0)
 		CurrentPlanet = Planets[0];
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("" + CurrentPlanet->GetName()));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("" + CurrentPlanet->GetName()));
 }
 
 void AOrbitPawn::Tick(float DeltaSeconds)
@@ -93,22 +94,6 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 
 	// Calculate  movement
 	const FVector Movement = MoveDirection * MoveSpeed * DeltaSeconds;
-
-	//if (ForwardValue != 0.0f || RightValue != 0.0f)
-	//{
-	//	//AddActorLocalOffset(Movement, false);
-
-	//	// Update planet variables.
-	//	TArray<FVector> PlanetNormalAndShipDistance;
-	//	PlanetNormalAndShipDistance = CurrentPlanet->GetSurfaceNormalAndObjectDistance(GetActorLocation());
-	//	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Normal: %f, %f, %f"), PlanetNormalAndShipDistance[0].X, PlanetNormalAndShipDistance[0].Y, PlanetNormalAndShipDistance[0].Z));
-
-	//	// Glue ship to the planet with the correct rotation.
-	//	SetActorLocation(PlanetNormalAndShipDistance[1]);
-	//	SetActorRotation(UKismetMathLibrary::MakeRotFromZX(PlanetNormalAndShipDistance[0], GetActorForwardVector()));
-	//	ShipMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
-	//	//FRotator(ShipMeshComponent->GetComponentRotation().Roll, ShipMeshComponent->GetComponentRotation().Pitch, PlanetNormalAndShipDistance[0].Z)
-	//}
 
 	// If non-zero size, move this actor
 	if (Movement.SizeSquared() > 0.0f)
@@ -132,21 +117,21 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 		if (Hit.IsValidBlockingHit())
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("HIT"));
-			const FVector Normal2D = Hit.Normal.GetSafeNormal2D();
+			const FVector Normal2D = Hit.Normal.GetSafeNormal();
 			const FVector Deflection = FVector::VectorPlaneProject(Movement, Normal2D) * (1.f - Hit.Time);
 			//RootComponent->MoveComponent(Deflection, NewRotation, true);
-			AddActorLocalOffset(Movement, true, &Hit);
+			AddActorLocalOffset(Deflection, true, &Hit);
 		}
 	}
 	
-	// Create fire direction vector
+	// Create fire direction vector.
 	const float FireForwardValue = GetInputAxisValue(FireForwardBinding);
 	const float FireRightValue = GetInputAxisValue(FireRightBinding);
 	FVector FireDirection = FVector(FireForwardValue, FireRightValue, 0.f);
 	FRotator Rot = GetActorRotation();
 	FireDirection = Rot.RotateVector(FireDirection);
 
-	// Try and fire a shot
+	// Try and fire a shot.
 	FireShot(FireDirection);
 }
 

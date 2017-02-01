@@ -18,6 +18,8 @@ APlanet::APlanet()
 	RadiusInMeters = 15.0f;
 	RadiusInUnits = RadiusInMeters * 100.0f;
 
+	AtmosphereHeight = 50.0f;
+
 	// Setup the planet mesh.
 	PlanetMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlanetMesh"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlanetVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
@@ -28,6 +30,7 @@ APlanet::APlanet()
 		PlanetScale = RadiusInUnits / PlanetMeshComponent->Bounds.BoxExtent.X;
 		PlanetMeshComponent->SetWorldScale3D(FVector(PlanetScale));
 		PlanetMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -RadiusInUnits));
+		PlanetMeshComponent->bCastDynamicShadow = false;
 		PlanetMeshComponent->SetupAttachment(RootComponent);
 	}
 }
@@ -54,7 +57,7 @@ TArray<FVector> APlanet::GetSurfaceNormalAndObjectDistance(const FVector ShipLoc
 	results.Add(ShipSurfaceNormal);
 
 	// The distance from the planet centre to the ship.
-	FVector ShipPlanetDistance = (ShipSurfaceNormal * (RadiusInUnits + 300)) + GetActorLocation();
+	FVector ShipPlanetDistance = (ShipSurfaceNormal * (RadiusInUnits + AtmosphereHeight)) + GetActorLocation();
 	results.Add(ShipPlanetDistance);
 
 	return results;

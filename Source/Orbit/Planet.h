@@ -24,7 +24,11 @@ class ORBIT_API APlanet : public AActor
 
 	// The planet's 3d world scale.
 	UPROPERTY()
-		float PlanetScale;
+	float PlanetScale;
+
+	// Height of objects in planet atmosphere.
+	UPROPERTY()
+	float AtmosphereHeight;
 	
 public:	
 	// Sets default values for this actor's properties
