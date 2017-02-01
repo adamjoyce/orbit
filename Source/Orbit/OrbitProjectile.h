@@ -23,6 +23,14 @@ class AOrbitProjectile : public AActor
 public:
 	AOrbitProjectile();
 
+	// Called when the game starts or when spawned.
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	// Current planet the ship is on.
+	class APlanet* CurrentPlanet;
+
 	/** Function to handle the projectile hitting something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

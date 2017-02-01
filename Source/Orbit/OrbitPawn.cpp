@@ -28,6 +28,8 @@ AOrbitPawn::AOrbitPawn()
 	ShipMeshComponent->SetupAttachment(RootComponent);
 	ShipMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	ShipMeshComponent->SetStaticMesh(ShipMesh.Object);
+
+	//ShipRoot->SetBoundsScale(ShipMeshComponent->BoundsScale);
 	
 	// Cache our sound effect
 	static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));

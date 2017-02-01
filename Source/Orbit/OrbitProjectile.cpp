@@ -3,12 +3,18 @@
 #include "Orbit.h"
 #include "OrbitProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Planet.h"
+#include "EngineUtils.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include <EngineGlobals.h>
 #include <Runtime/Engine/Classes/Engine/Engine.h>
 
 AOrbitProjectile::AOrbitProjectile() 
 {
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Static reference to the mesh to use for the projectile
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Game/TwinStick/Meshes/TwinStickProjectile.TwinStickProjectile"));
 
@@ -32,6 +38,34 @@ AOrbitProjectile::AOrbitProjectile()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+}
+
+void AOrbitProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+	// Find all planet's in the scene.
+	TArray<APlanet*> Planets;
+	for (TActorIterator<APlanet> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Will most likely need re-working when more planets are added...
+		Planets.Add(*ActorItr);
+	}
+
+	if (Planets.Num() > 0)
+		CurrentPlanet = Planets[0];
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("" + CurrentPlanet->GetName()));
+}
+
+void AOrbitProjectile::Tick(float DeltaSeconds)
+{
+	// Update planet variables.
+	TArray<FVector> PlanetNormalAndShipDistance;
+	PlanetNormalAndShipDistance = CurrentPlanet->GetSurfaceNormalAndObjectDistance(GetActorLocation());
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Normal: %f, %f, %f"), PlanetNormalAndShipDistance[1].X, PlanetNormalAndShipDistance[1].Y, PlanetNormalAndShipDistance[1].Z));
+
+	// Glue projectile to planet.
+	SetActorLocation(PlanetNormalAndShipDistance[1]);
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Velocity: %f, %f, %f"), ProjectileMovement->Velocity.X, ProjectileMovement->Velocity.Y, ProjectileMovement->Velocity.Z));
 }
 
 void AOrbitProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
