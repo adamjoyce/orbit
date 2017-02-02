@@ -18,10 +18,6 @@ class ORBIT_API APlanet : public AActor
 	UPROPERTY()
 	class UStaticMeshComponent* PlanetMeshComponent;
 
-	// Planet radius in UE4 units (cm).
-	UPROPERTY()
-	float RadiusInUnits;
-
 	// The planet's 3d world scale.
 	UPROPERTY()
 	float PlanetScale;
@@ -37,6 +33,10 @@ public:
 	// Planet radius in meters.
 	UPROPERTY(Category = PlanetVariables, EditAnywhere, BlueprintReadWrite)
 	float RadiusInMeters;
+
+	// Planet radius in UE4 units (cm).
+	UPROPERTY()
+	float RadiusInUnits;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

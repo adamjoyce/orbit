@@ -28,8 +28,6 @@ AOrbitPawn::AOrbitPawn()
 	ShipMeshComponent->SetupAttachment(RootComponent);
 	ShipMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	ShipMeshComponent->SetStaticMesh(ShipMesh.Object);
-
-	//ShipRoot->SetBoundsScale(ShipMeshComponent->BoundsScale);
 	
 	// Cache our sound effect
 	static ConstructorHelpers::FObjectFinder<USoundBase> FireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
@@ -38,8 +36,8 @@ AOrbitPawn::AOrbitPawn()
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 1200.f;
-	CameraBoom->RelativeRotation = FRotator(-80.f, 0.f, 0.f);
+	CameraBoom->TargetArmLength = 1200.0f;
+	CameraBoom->RelativeRotation = FRotator(-90.f, 0.f, 0.f);
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
 	// Create a camera...
@@ -80,6 +78,8 @@ void AOrbitPawn::BeginPlay()
 	if (Planets.Num() > 0)
 		CurrentPlanet = Planets[0];
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("" + CurrentPlanet->GetName()));
+
+	CameraBoom->TargetArmLength = CurrentPlanet->RadiusInUnits;
 }
 
 void AOrbitPawn::Tick(float DeltaSeconds)
@@ -100,8 +100,8 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 	// If non-zero size, move this actor
 	if (Movement.SizeSquared() > 0.0f)
 	{
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
-		const FRotator NewRotation = Movement.Rotation();
+		//UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+		//const FRotator NewRotation = Movement.Rotation();
 		FHitResult Hit(1.f);
 		//RootComponent->MoveComponent(Movement, NewRotation, true, &Hit);
 		AddActorLocalOffset(Movement, true, &Hit);
@@ -128,7 +128,7 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 	}
 	else
 	{
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.05f);
+		//UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.025f);
 	}
 	
 	// Create fire direction vector.
