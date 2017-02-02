@@ -21,8 +21,6 @@ AOrbitEnemy::AOrbitEnemy()
 	RootComponent = EnemyMeshComponent;
 
 	MoveSpeed = 500.0f;
-	WanderJitter = 10.0f;
-	WanderRadius = 2.0f;
 }
 
 // Called when the game starts or when spawned
@@ -47,12 +45,16 @@ void AOrbitEnemy::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// Choose a random direction vector to move in.
-	FVector MoveDirection = FVector(1, 1, 0);//FMath::VRand();
+	FVector MoveDirection = FMath::VRandCone(GetActorForwardVector(), 0.1);
+	MoveDirection = FVector(MoveDirection.X, MoveDirection.Y, 0);
+
 
 	// Move the actor.
 	FVector Movement = MoveDirection * MoveSpeed * DeltaTime;
+	FRotator NewRotation = MoveDirection.Rotation();
 	FHitResult Hit(1.f);
-	AddActorLocalOffset(Movement, true, &Hit);
+	//AddActorLocalOffset(Movement, true, &Hit);
+	RootComponent->MoveComponent(Movement, NewRotation, true, &Hit);
 
 	// Update planet variables.
 	TArray<FVector> PlanetNormalAndShipDistance;
@@ -62,7 +64,7 @@ void AOrbitEnemy::Tick(float DeltaTime)
 	// Glue enemy to the planet with the correct rotation.
 	SetActorLocation(PlanetNormalAndShipDistance[1]);
 	SetActorRotation(UKismetMathLibrary::MakeRotFromZX(PlanetNormalAndShipDistance[0], GetActorForwardVector()));
-	//EnemyMeshComponent->SetRelativeRotation(MoveDirection.Rotation());
+	//EnemyMeshComponent->SetRelativeRotation(GetActorForwardVector().Rotation());
 	//FRotator(ShipMeshComponent->GetComponentRotation().Roll, ShipMeshComponent->GetComponentRotation().Pitch, PlanetNormalAndShipDistance[0].Z)
 }
 
